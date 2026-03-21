@@ -68,7 +68,6 @@
         .header-left { display: flex; align-items: center; gap: 15px; width: 100%; }
         .header-right { display: flex; align-items: center; }
         
-        /* Modificado para responsividad */
         #page-title { font-size: clamp(1.1rem, 2.5vw, 1.5rem); }
         .badge { background: var(--secondary); color: white; padding: 4px 8px; border-radius: 4px; font-size: clamp(0.65rem, 1.5vw, 0.8rem); font-weight: 600; text-align: center; }
         .badge.active-badge { background: var(--success) !important; color: white !important; }
@@ -85,7 +84,7 @@
 
         .alerta-warning { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); padding: 15px 30px; display: none; border-bottom: 1px solid var(--warning); font-weight: 500; text-align: center; }
 
-        /* Ajustes responsivos: tarjetas y textos encogen en lugar de deformarse */
+        /* Ajustes responsivos */
         .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
         .card, .action-card { background-color: var(--surface); padding: clamp(10px, 2vw, 20px); border-radius: 10px; box-shadow: var(--shadow); display: flex; align-items: center; gap: clamp(8px, 1.5vw, 15px); border: 1px solid transparent; }
         .card i { font-size: clamp(1.2rem, 3vw, 2rem); color: var(--primary); background: rgba(59, 130, 246, 0.1); padding: clamp(10px, 2vw, 15px); border-radius: 50%; flex-shrink: 0; }
@@ -124,9 +123,9 @@
 
         .menu-toggle, .mobile-only-btn { display: none; background: none; color: var(--primary); font-size: 1.5rem; padding: 5px; }
 
-        /* Ajustes en Tablas para que actúen como goma */
+        /* Ajustes en Tablas */
         .table-container { background: var(--surface); border-radius: 10px; box-shadow: var(--shadow); width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; text-align: left; } /* Eliminado min-width para forzar reducción */
+        table { width: 100%; border-collapse: collapse; text-align: left; } 
         th, td { padding: clamp(6px, 1vw, 12px) clamp(6px, 1.5vw, 15px); border-bottom: 1px solid var(--border); vertical-align: middle; font-size: clamp(0.7rem, 1.5vw, 0.9rem); word-wrap: break-word; }
         th { background-color: rgba(100, 116, 139, 0.05); color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: clamp(0.65rem, 1.2vw, 0.8rem); white-space: normal; line-height: 1.2; }
         
@@ -134,11 +133,9 @@
         .clickable-rows tr:hover { background-color: rgba(59, 130, 246, 0.05); }
         .clickable-rows tr.active-row { background-color: rgba(59, 130, 246, 0.1); border-left: 3px solid var(--primary); }
         
-        /* Fila Vendida en rojo claro */
         .clickable-rows tr.row-vendido { background-color: rgba(239, 68, 68, 0.08) !important; border-left: 3px solid var(--danger); }
         .clickable-rows tr.row-vendido:hover { background-color: rgba(239, 68, 68, 0.15) !important; }
 
-        /* Enlace de Placa */
         a.placa-link { color: var(--edit); text-decoration: underline; font-weight: bold; cursor: pointer; transition: color 0.2s; }
         a.placa-link:hover { color: var(--primary-hover); }
 
@@ -149,6 +146,33 @@
 
         .action-card { flex-direction: column; text-align: center; }
         .action-card p { font-size: clamp(0.75rem, 1.5vw, 0.9rem); margin: 10px 0; color: var(--text-muted); }
+
+        /* Botón Instalación PWA */
+        #install-pwa-btn {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--primary);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            cursor: pointer;
+            z-index: 9999;
+            display: none; /* Oculto por defecto */
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+        #install-pwa-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateX(-50%) scale(1.05);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+        }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -164,6 +188,7 @@
             input, select { width: 100%; min-width: 100%; }
             .action-buttons { flex-direction: column; gap: 3px; align-items: stretch; }
             .btn-sm { width: 100%; justify-content: center; }
+            #install-pwa-btn { bottom: 15px; padding: 8px 16px; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -432,6 +457,9 @@
                 </div>
             </section>
         </main>
+        
+        <button id="install-pwa-btn"><i class="fas fa-download"></i> Instalar App</button>
+
     </div>
     
     <div id="modal-reinvertir" class="modal-overlay d-none">
@@ -506,6 +534,81 @@
                 if (!dateStr) return '---';
                 const [year, month, day] = dateStr.split('-');
                 return `${day}/${month}/${year}`;
+            }
+        };
+
+        // ==========================================
+        // MÓDULO PWA: INSTALACIÓN Y MANIFEST
+        // ==========================================
+        const PWA = {
+            init: () => {
+                PWA.injectManifest();
+                PWA.registerSW();
+                PWA.setupInstallButton();
+            },
+            injectManifest: () => {
+                const manifest = {
+                    name: "COMPRA - Gestión Vehículos",
+                    short_name: "COMPRA",
+                    start_url: location.href,
+                    display: "standalone",
+                    background_color: "#f1f5f9",
+                    theme_color: "#1e3a8a",
+                    icons: [{
+                        src: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjMWUzYThhIiBkPSJNNDk5Ljk5IDE3Ni4waC01OS44N2wtNjguNi03NC42Yy04LjgtOS42LTIxLjQtMTUuNC0zNC41LTE1LjRIMTczLjRWMzJoLTMyVjg2LjRIMTEuOThDMi42OCA4Ni40IDAgOTIuNjggMCAxMDB2MjU2YzAgNy4zMiAyLjY4IDEzLjYgMTEuOTggMTMuNmgzOS4wOGMyLjkgNDEuMiAzNy40IDc0LjQgNzkuOTQgNzQuNCA0Mi41NCAwIDc3LjA0LTMzLjIgNzkuOTQtNzQuNGg4OS4xOGMyLjkgNDEuMiAzNy40IDc0LjQgNzkuOTQgNzQuNCA0Mi41NCAwIDc3LjA0LTMzLjIgNzkuOTQtNzQuNGgzOS4wOGM5LjMgMCAxMS45OC02LjI4IDExLjk4LTEzLjZWMTc2LjB6TTIwMS44NiA4Ni40aDEzOS42MWM1LjMgMCAxMC40IDIuNCAxMy45IDYuMmw1NS40IDYwLjJINjR2LTQyaDEzNy44NnptLTcwLjkgMjk5LjZjLTIzLjMgMC00Mi4zNC0xOS40NC00Mi4zNC00My4yIDAtMjMuNzYgMTguOTQtNDMuMiA0Mi4zNC00My4yIDIzLjQgMCA0Mi4zNCAxOS40NCA0Mi4zNCA0My4yIDAgMjMuNzYtMTkuMDQgNDMuMi00Mi4zNCA0My4yem0yMTEuOTIgMGMtMjMuMyAwLTQyLjM0LTE5LjQ0LTQyLjM0LTQzLjIgMC0yMy43NiAxOC45NC00My4yIDQyLjM0LTQzLjIgMjMuNCAwIDQyLjM0IDE5LjQ0IDQyLjM0IDQzLjIgMCAyMy43Ni0xOS4wNCA0My4yLTQyLjM0IDQzLjJ6Ii8+PC9zdmc+",
+                        sizes: "512x512",
+                        type: "image/svg+xml",
+                        purpose: "any maskable"
+                    }]
+                };
+                const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+                const link = document.createElement('link');
+                link.rel = 'manifest';
+                link.href = URL.createObjectURL(blob);
+                document.head.appendChild(link);
+            },
+            registerSW: () => {
+                if ('serviceWorker' in navigator) {
+                    const swCode = `
+                        self.addEventListener('install', e => self.skipWaiting());
+                        self.addEventListener('activate', e => self.clients.claim());
+                        self.addEventListener('fetch', e => {});
+                    `;
+                    const blob = new Blob([swCode], {type: 'text/javascript'});
+                    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+                }
+            },
+            setupInstallButton: () => {
+                let deferredPrompt;
+                const btn = document.getElementById('install-pwa-btn');
+
+                // Si ya es standalone (ya instalada), esconder botón y no hacer nada
+                if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+                    btn.style.display = 'none';
+                    return;
+                }
+
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    btn.style.display = 'flex'; // Mostrar botón solo si se puede instalar
+                });
+
+                btn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        if (outcome === 'accepted') {
+                            btn.style.display = 'none';
+                        }
+                        deferredPrompt = null;
+                    }
+                });
+
+                window.addEventListener('appinstalled', () => {
+                    btn.style.display = 'none';
+                    deferredPrompt = null;
+                });
             }
         };
 
@@ -1257,7 +1360,11 @@
             }
         };
 
-        document.addEventListener('DOMContentLoaded', UI.init);
+        // Iniciar App + PWA
+        document.addEventListener('DOMContentLoaded', () => {
+            UI.init();
+            PWA.init();
+        });
     </script>
 </body>
 </html>
