@@ -1475,8 +1475,8 @@
                 tfoot.innerHTML = `
                     <tr class="table-total">
                         <td data-label="Resumen Final" style="text-align:right;"><strong>TOTALES:</strong></td>
-                        <td></td>
-                        <td></td>
+                        <td data-label="T. APORTE"><strong>${Calc.formatMoney(totalAportes)}</strong></td>
+                        <td data-label="T. %"><strong>100%</strong></td>
                         <td data-label="T. INVERSIÓN" style="color: var(--danger);"><strong>${Calc.formatMoney(sumInversion)}</strong></td>
                         <td data-label="T. NO INVERTIDO" style="color: var(--secondary);"><strong>${Calc.formatMoney(sumNoInvertido)}</strong></td>
                         <td data-label="T. FALTANTE" style="color: var(--warning);"><strong>${Calc.formatMoney(sumFaltante)}</strong></td>
