@@ -525,21 +525,27 @@
             th, td { padding: 10px 8px; font-size: 0.8rem; word-break: break-word; }
             .action-buttons { flex-direction: column; gap: 6px; }
 
-            /* TABLA VERTICAL - VENTAS Y GANANCIAS */
-            #tabla-distribucion thead { display: none; }
-            #tabla-distribucion, #tabla-distribucion tbody, #tabla-distribucion tfoot, #tabla-distribucion tr, #tabla-distribucion td { display: block; width: 100%; box-sizing: border-box; }
-            #tabla-distribucion tr { margin-bottom: 16px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--surface); box-shadow: var(--shadow-sm); overflow: hidden; }
-            #tabla-distribucion td { 
-                display: flex; justify-content: space-between; align-items: center; 
-                text-align: right; padding: 12px 14px; border-bottom: 1px solid var(--border); 
+            /* TABLA VERTICAL TRANSPUESTA - VENTAS Y GANANCIAS */
+            #tabla-distribucion { 
+                display: flex; flex-direction: row; overflow-x: auto; 
+                border: 1px solid var(--border); border-radius: var(--radius-md); 
+                background: var(--surface); box-shadow: var(--shadow-sm); 
+                -webkit-overflow-scrolling: touch;
             }
-            #tabla-distribucion td:last-child { border-bottom: none; }
-            #tabla-distribucion td::before { 
-                content: attr(data-label); font-weight: 700; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;
+            #tabla-distribucion thead, #tabla-distribucion tbody, #tabla-distribucion tfoot { display: flex; flex-shrink: 0; }
+            #tabla-distribucion tr { display: flex; flex-direction: column; flex-shrink: 0; }
+            #tabla-distribucion thead tr { min-width: 120px; background-color: var(--bg-color); border-right: 2px solid var(--border); }
+            #tabla-distribucion tbody tr { min-width: 140px; border-right: 1px solid var(--border); }
+            #tabla-distribucion tfoot tr { min-width: 150px; background-color: var(--bg-color); border-left: 2px solid var(--primary); }
+            
+            #tabla-distribucion th, #tabla-distribucion td { 
+                display: flex; align-items: center; justify-content: flex-start; 
+                height: 60px; /* Altura obligatoria para alinear celdas horizontalmente */
+                padding: 10px; border-bottom: 1px solid var(--border); border-right: none;
+                font-size: 0.85rem; text-align: left; box-sizing: border-box;
             }
-            #tabla-distribucion tfoot tr { background: var(--bg-color); border: 2px solid var(--primary); margin-top: 20px;}
-            #tabla-distribucion td[colspan="3"] { justify-content: center; }
-            #tabla-distribucion td[colspan="3"]::before { content: none; }
+            #tabla-distribucion th:last-child, #tabla-distribucion td:last-child { border-bottom: none; }
+            #tabla-distribucion td::before { content: none !important; }
         }
     </style>
 </head>
@@ -1468,7 +1474,9 @@
 
                 tfoot.innerHTML = `
                     <tr class="table-total">
-                        <td data-label="Resumen Final" colspan="3" style="text-align:right;"><strong>TOTALES:</strong></td>
+                        <td data-label="Resumen Final" style="text-align:right;"><strong>TOTALES:</strong></td>
+                        <td></td>
+                        <td></td>
                         <td data-label="T. INVERSIÓN" style="color: var(--danger);"><strong>${Calc.formatMoney(sumInversion)}</strong></td>
                         <td data-label="T. NO INVERTIDO" style="color: var(--secondary);"><strong>${Calc.formatMoney(sumNoInvertido)}</strong></td>
                         <td data-label="T. FALTANTE" style="color: var(--warning);"><strong>${Calc.formatMoney(sumFaltante)}</strong></td>
